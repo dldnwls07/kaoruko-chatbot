@@ -1,50 +1,55 @@
 @echo off
 chcp 65001 > nul 2>&1
 
+echo.
 echo ========================================
-echo      🌸 카오루코 챗봇 시작하기 🌸
+echo    🌸 카오루코 챗봇 간편 실행기 🌸
 echo ========================================
 echo.
 
+echo [정보] 서버를 시작합니다...
+echo.
+
+REM 백엔드 서버 시작
 echo [1/2] 백엔드 서버 시작 중... (포트 8001)
 cd backend
-start "Kaoruko Backend" cmd /k "chcp 65001 > nul && python main.py"
+start "Kaoruko Backend" cmd /k "title 카오루코 백엔드 서버 && chcp 65001 > nul && python main.py"
 cd ..
 
+REM 잠시 대기
 timeout /t 3 > nul
 
-echo [2/2] 프론트엔드 서버 시작 중... (포트 5173)  
+REM 프론트엔드 서버 시작  
+echo [2/2] 프론트엔드 서버 시작 중... (포트 5173)
 cd frontend
-start "Kaoruko Frontend" cmd /k "chcp 65001 > nul && npm run dev"
+start "Kaoruko Frontend" cmd /k "title 카오루코 프론트엔드 서버 && chcp 65001 > nul && npm run dev"
 cd ..
 
+REM 서버 시작 대기
+echo.
+echo ⏳ 서버 초기화 중...
 timeout /t 5 > nul
 
+REM 브라우저 자동 실행
 echo.
-echo ✅ 서버 시작 완료!
-echo.
-echo 🌐 웹 브라우저에서 접속:
-echo    http://localhost:5173
-echo.
-echo 💕 카오루코와 대화하세요!
-echo.
-
-echo Opening browser automatically...
+echo 🌐 웹브라우저를 실행합니다...
 timeout /t 2 > nul
 start http://localhost:5173
 
+REM 완료 메시지
 echo.
 echo ========================================
-echo        Servers are now running!
+echo          ✅ 실행 완료!
 echo ========================================
-echo * Backend: http://localhost:8001
-echo * Frontend: http://localhost:5173
 echo.
-echo To stop servers, close the terminal windows.
-echo This window will remain open to keep servers running.
+echo 🌸 카오루코 챗봇이 준비되었습니다!
 echo.
-echo Press Ctrl+C to stop all servers.
+echo 📍 접속 주소: http://localhost:5173
+echo 🛑 서버 중지: 각 터미널 창을 닫아주세요
+echo.
+echo 💕 즐거운 대화 되세요!
+echo.
 
-:loop
-timeout /t 30 > nul
-goto loop
+REM 5초 후 이 창 자동 종료
+echo 이 창은 5초 후 자동으로 닫힙니다...
+timeout /t 5 > nul
