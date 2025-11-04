@@ -1,0 +1,73 @@
+# API 키와 민감한 정보
+*.env
+.env
+.env.local
+.env.production
+api_key.txt
+
+# 데이터베이스 파일 (개인 채팅 기록)
+*.db
+*.sqlite
+*.sqlite3
+chat_history.db
+
+# Python 캐시 파일들
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# VS Code 설정 (선택사항)
+.vscode/
+*.code-workspace
+
+# Node.js 의존성
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# 로그 파일들
+*.log
+logs/
+
+# 운영체제 파일들
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# 임시 파일들
+*.tmp
+*.temp
+.history/
+
+# IDE 설정 파일들
+.idea/
+*.swp
+*.swo
+*~
+
+# 백업 파일들
+*.bak
+*.backup
