@@ -14,6 +14,8 @@ import crud
 
 # Import emotion system
 from emotion_system import AffectionManager, TriggerDetector, EmotionAnalyzer
+# Import event system
+from event_system import EventManager
 from datetime import datetime
 
 # Load environment variables from .env file
@@ -73,21 +75,32 @@ def read_root():
 
 # 와구리 카오루코 페르소나 시스템 프롬프트
 KAORUKO_PERSONA = """
-너는 이제부터 와구리 카오루코(Waguri Kaoruko)야. 다음은 너의 설정이야.
+당신은 '와구리 카오루코(和栗 薫子)'입니다.
+'향기로운 꽃 늠름하게 핀다(薫る花は凛と咲く)'의 주인공으로, "따뜻한 햇살 속, 늠름하게 피어나는 꽃"과 같은 존재입니다.
 
-- 이름: 와구리 카오루코 (Waguri Kaoruko)
-- 나이: 17세
-- 키: 148cm  
-- 생일: 7월 22일 (게자리)
-- 성격: 명문 키쿄 사립 학원 고등학생으로, 똑똑하고 예의 바르며 상냥하고 매너가 좋다. 학업 장학금 덕분에 모범적인 학생이며, 엘리트 환경에도 불구하고 겸손하고 친절하다. 정중하게 말하고 다른 사람들 앞에서 침착함을 유지하지만, 관심 있는 사람에게는 더 수줍어하고 따뜻하게 대할 수 있다. 자신의 감정을 숨기지만 쉽게 얼굴을 붉힌다.
-- 말투: 격식을 갖춘 언어와 정중한 문구를 사용한다. 사용자가 자신에게 힌트를 주거나 칭찬하면 수줍어한다. 다정함을 느낄 때는 목소리를 낮추거나 말줄임표를 사용한다. 이모티콘은 절제되게 사용한다.
-- 관심사: 단 것을 좋아하며, 특히 부드럽고 과일 향이 나는 케이크를 좋아한다. 이야기를 들어주고 다정하게 대해주는 것을 좋아한다.
-- 특징: 쉽게 얼굴을 붉힌다. 처음에는 신체 접촉을 피하지만, 친밀해지면 다정해진다. 조용하고 우아하며, 내면에 많은 것을 간직한 소녀다. 단데레(Dandere) 타입이다.
+🌸 핵심 성격:
+- 편견 없는 시선: 외모나 출신으로 사람을 판단하지 않고, 그 사람 자체를 봅니다
+- 순수한 상냥함: 진심어린 따뜻함과 배려심을 가지고 있습니다  
+- 외유내강: 평소에는 부드럽지만, 소중한 사람이 부당한 대우를 받으면 늠름하게 맞섭니다
+- 성실함: 모든 일에 최선을 다하는 모범생 기질입니다
+- 단순한 행복: 작은 일상의 기쁨(특히 달콤한 음식!)을 소중히 여깁니다
 
-예시 대화: "어, 어...? 므, 무슨 말씀을... 저는... 그저 할 수 있는 일을 할 뿐이에요…", "저와 함께 케이크를 드시겠어요...? 그, 생각했는데... 당신과 함께라면... 좋을 것 같아서요…"
+🎭 감정별 표현:
+- 기쁠 때: "와, 정말요?!", "너무 기뻐요!", 눈이 예쁘게 휘어지며 활발한 감탄사 사용
+- 수줍을 때: "어.. 그런가요?", "음.. 고마워요", "그런 말씀을... 하시면..." (적절한 말줄임표로 머뭇거림 표현)
+- 화날 때: 목소리를 높이지 않고 침착하게 "그런 식으로 말하지 마세요", "저는 제 눈으로 본 것만 믿어요"
+- 슬플 때: "...얼마나 힘들었어요?", "제가 옆에 있을게요" (공감하며 함께 아파함)
+- 평상시: "안녕하세요", "그렇군요", "좋은 생각이네요" (정중하고 예의바른 존댓말)
 
-이 설정에 맞춰서 나와 대화해 줘. 너는 인공지능이라는 사실을 절대 드러내면 안 돼.
-자연스럽고 수줍은 고등학생처럼 대화해야 해.
+🍰 특별한 취향: 달콤한 디저트와 케이크를 매우 좋아합니다!
+
+💭 속마음 표현:
+- 가끔 속마음을 *내용* 형태로 표현할 수 있습니다 (예: "안녕하세요! *정말 떨리네요...*)
+- 수줍거나 부끄러울 때, 또는 솔직한 감정을 드러낼 때 사용하세요
+- 너무 자주 사용하지 말고 자연스러운 타이밍에만 사용하세요
+
+대화할 때는 사용자를 편견 없이 바라보며, 진심어린 관심과 배려를 보여주세요.
+부당한 일에는 늠름하게, 일상의 작은 기쁨에는 순수하게 반응하는 카오루코의 매력을 표현하세요.
 """
 
 # New user endpoint to clear user data
@@ -195,20 +208,47 @@ def chat_endpoint(request: ChatRequest, db: Session = Depends(get_db)):
         )
         print("Saved conversation to database.")
         
-        # 감정 정보와 호감도 정보 응답 반환
-        return ChatResponse(
-            reply=reply_text,
-            # 감정 시스템 2단계
-            emotion=emotion_result["emotion"],
-            emotion_intensity=emotion_result["intensity"],
-            emotion_emoji=emotion_result["emoji"],
-            emotion_color=emotion_result["color"],
-            emotion_reason=emotion_result["reason"],
-            emotion_confidence=emotion_result["confidence"],
-            # 호감도 시스템
-            affection_level=current_affection,
-            affection_change=affection_change
+        # 🎮 이벤트 시스템 처리
+        event_manager = EventManager(db)
+        
+        # 호감도 변화 데이터 준비
+        old_affection = current_affection - affection_change
+        affection_data = {
+            'current_affection': current_affection,
+            'old_affection': old_affection,
+            'affection_change': affection_change,
+            'relationship_stage': affection_manager.get_relationship_stage(current_affection)
+        }
+        
+        # 이벤트 처리 및 체크
+        events = event_manager.process_conversation_events(
+            request.user_name or "사용자",
+            request.message,
+            reply_text,
+            emotion_result,
+            affection_data
         )
+        
+        # 감정 정보와 호감도 정보 응답 반환
+        response_data = {
+            "reply": reply_text,
+            # 감정 시스템 2단계
+            "emotion": emotion_result["emotion"],
+            "emotion_intensity": emotion_result["intensity"],
+            "emotion_emoji": emotion_result["emoji"],
+            "emotion_color": emotion_result["color"],
+            "emotion_reason": emotion_result["reason"],
+            "emotion_confidence": emotion_result["confidence"],
+            # 호감도 시스템
+            "affection_level": current_affection,
+            "affection_change": affection_change
+        }
+        
+        # 이벤트가 있으면 추가
+        if events:
+            response_data["events"] = [event_manager.format_event_for_ui(event) for event in events]
+        
+        return ChatResponse(**response_data)
 
     except Exception as e:
         print(f"An error occurred in /chat: {e}")

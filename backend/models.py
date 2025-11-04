@@ -2,6 +2,7 @@ from pydantic import BaseModel
 from sqlalchemy import Column, Integer, String, Text, DateTime, Float, Date
 from sqlalchemy.sql import func
 from database import Base
+from typing import List, Dict
 
 # --- Pydantic Models for API validation ---
 
@@ -23,6 +24,8 @@ class ChatResponse(BaseModel):
     # 호감도 시스템
     affection_level: int = 0
     affection_change: int = 0
+    # 이벤트 시스템
+    events: List[Dict] = []
 
 
 # --- 감정 시스템 API 모델들 ---

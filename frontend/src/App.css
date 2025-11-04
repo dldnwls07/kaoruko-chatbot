@@ -22,23 +22,24 @@
 .name-input-card {
   background: rgba(255, 255, 255, 0.95);
   border-radius: 24px;
-  padding: 40px;
+  padding: 50px 60px;
   box-shadow: 0 20px 60px rgba(255, 107, 157, 0.2);
   text-align: center;
-  max-width: 420px;
-  width: 100%;
+  max-width: 550px;
+  width: 90%;
   border: 2px solid rgba(255, 255, 255, 0.8);
   -webkit-backdrop-filter: blur(20px);
   backdrop-filter: blur(20px);
 }
 
 .character-image {
-  width: 150px;
-  height: 150px;
+  width: 180px;
+  height: 180px;
   border-radius: 50%;
   object-fit: cover;
-  margin-bottom: 20px;
-  border: 4px solid #ffb3d9;
+  margin-bottom: 25px;
+  border: 5px solid #ffb3d9;
+  box-shadow: 0 10px 30px rgba(255, 179, 217, 0.4);
 }
 
 .name-form {
@@ -59,12 +60,20 @@
   border-radius: 10px;
   font-size: 1rem;
   outline: none;
-  transition: border-color 0.3s ease;
+  transition: all 0.3s ease;
+  background: #f8f8f8;
+  color: #333;
 }
 
 .name-form input:focus {
   border-color: #ff9ac7;
   box-shadow: 0 0 0 3px rgba(255, 154, 199, 0.1);
+  background: #fff;
+  color: #2c2c2c;
+}
+
+.name-form input::placeholder {
+  color: #bbb;
 }
 
 .name-form button {
@@ -87,9 +96,9 @@
   border-radius: 20px;
   display: flex;
   flex-direction: column;
-  height: 85vh;
+  height: 90vh;
   width: 100%;
-  max-width: 700px;
+  max-width: 900px;
   margin: auto;
   box-shadow: 0 10px 40px rgba(255, 107, 157, 0.15);
   overflow: hidden;
@@ -298,10 +307,12 @@
 }
 
 .message {
-  padding: 10px 15px;
+  padding: 15px 22px;
   border-radius: 18px;
-  max-width: 70%;
+  max-width: 75%;
   word-wrap: break-word;
+  font-size: 1.15rem;
+  line-height: 1.6;
 }
 
 .message.user {
@@ -396,17 +407,30 @@
 
 /* 새로운 호감도 카드 디자인 */
 .affection-card {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.1);
   border-radius: 16px;
   padding: 16px;
-  position: sticky;
-  top: 0;
-  z-index: 101;
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.2);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   margin-bottom: 16px;
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  overflow: hidden;
+}
+
+.affection-card .hearts-display,
+.affection-card .progress-container {
+  animation: fadeInSlide 0.4s ease-out;
+}
+
+@keyframes fadeInSlide {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .affection-header {
@@ -429,10 +453,62 @@
   white-space: nowrap;
 }
 
+.relationship-badge.negative {
+  background: rgba(255, 107, 107, 0.9);
+  color: white;
+  box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
+}
+
 .affection-score {
   font-size: 1.2rem;
   font-weight: 700;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.toggle-affection-btn {
+  background: linear-gradient(135deg, rgba(255, 182, 218, 0.8), rgba(255, 192, 235, 0.8));
+  border: 2px solid rgba(255, 255, 255, 0.6);
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  color: white;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 15px rgba(255, 182, 218, 0.4);
+  position: relative;
+  overflow: hidden;
+}
+
+.toggle-affection-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), transparent);
+  border-radius: 50%;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.toggle-affection-btn:hover {
+  background: linear-gradient(135deg, rgba(255, 154, 199, 0.9), rgba(255, 182, 218, 0.9));
+  border-color: rgba(255, 255, 255, 0.8);
+  transform: scale(1.15) rotate(10deg);
+  box-shadow: 0 6px 25px rgba(255, 154, 199, 0.6);
+}
+
+.toggle-affection-btn:hover::before {
+  opacity: 1;
+}
+
+.toggle-affection-btn:active {
+  transform: scale(1.05) rotate(5deg);
 }
 
 .max-score {
@@ -464,6 +540,17 @@
   filter: grayscale(100%) drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
 }
 
+/* 음수 호감도용 깨진 하트 스타일 */
+.heart.negative {
+  color: #ff6b6b;
+}
+
+.heart.broken {
+  transform: scale(1.1);
+  animation: brokenHeartPulse 2s infinite;
+  filter: drop-shadow(0 2px 4px rgba(255, 107, 107, 0.4));
+}
+
 .progress-container {
   display: flex;
   align-items: center;
@@ -486,6 +573,14 @@
   transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 0 0 20px rgba(255, 154, 158, 0.6);
   position: relative;
+}
+
+/* 음수 호감도용 역방향 게이지 */
+.progress-fill.negative {
+  background: linear-gradient(90deg, #ff6b6b, #ff5252, #f44336);
+  box-shadow: 0 0 20px rgba(255, 107, 107, 0.6);
+  margin-left: auto;
+  transform-origin: right;
 }
 
 .progress-fill::after {
@@ -552,6 +647,17 @@
 @keyframes heartBeat {
   0%, 100% { transform: scale(1.1); }
   50% { transform: scale(1.2); }
+}
+
+@keyframes brokenHeartPulse {
+  0%, 100% { 
+    transform: scale(1.1); 
+    filter: drop-shadow(0 2px 4px rgba(255, 107, 107, 0.4));
+  }
+  50% { 
+    transform: scale(1.15); 
+    filter: drop-shadow(0 3px 6px rgba(255, 107, 107, 0.7));
+  }
 }
 
 @keyframes shimmer {
@@ -772,6 +878,15 @@
   flex: 1;
 }
 
+/* 속마음 스타일 */
+.inner-thought {
+  opacity: 0.6;
+  font-size: 0.85em;
+  color: #888;
+  font-style: italic;
+  margin: 0 2px;
+}
+
 .message-controls {
   display: flex;
   gap: 4px;
@@ -896,4 +1011,122 @@
   .volume-icon {
     font-size: 0.7rem;
   }
+}
+
+/* 🎮 이벤트 시스템 스타일 */
+.message.system {
+  background: linear-gradient(135deg, #ffd700, #ffed4e);
+  color: #333;
+  align-self: center;
+  text-align: center;
+  border: 2px solid #ffd700;
+  font-weight: 600;
+  box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+  animation: eventGlow 2s ease-in-out infinite alternate;
+  max-width: 85%;
+  margin: 10px 0;
+}
+
+.message.bot.event {
+  background: linear-gradient(135deg, #e8f5ff, #d4edff);
+  border: 2px solid #87ceeb;
+  box-shadow: 0 2px 12px rgba(135, 206, 235, 0.3);
+  animation: eventBounce 0.6s ease-out;
+}
+
+.message.bot.special {
+  background: linear-gradient(135deg, #f0e6ff, #e6d9ff);
+  border: 2px solid #dda0dd;
+  box-shadow: 0 2px 12px rgba(221, 160, 221, 0.3);
+}
+
+@keyframes eventGlow {
+  0% {
+    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+    transform: scale(1);
+  }
+  100% {
+    box-shadow: 0 6px 25px rgba(255, 215, 0, 0.5);
+    transform: scale(1.02);
+  }
+}
+
+@keyframes eventBounce {
+  0% {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+  50% {
+    transform: translateY(-5px);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.milestone-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.milestone-content {
+  background: linear-gradient(135deg, #ffe4f1, #fff0f7);
+  border: 3px solid #ffb3d9;
+  border-radius: 20px;
+  padding: 30px;
+  max-width: 400px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(255, 179, 217, 0.4);
+  animation: milestoneAppear 0.5s ease-out;
+}
+
+@keyframes milestoneAppear {
+  0% {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.milestone-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #ff6b9d;
+  margin-bottom: 15px;
+}
+
+.milestone-message {
+  font-size: 1rem;
+  color: #666;
+  line-height: 1.5;
+  margin-bottom: 20px;
+}
+
+.milestone-close {
+  background: linear-gradient(135deg, #ff9ac7, #ffb3d9);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 10px 20px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.milestone-close:hover {
+  background: linear-gradient(135deg, #ff7bb3, #ff9ac7);
+  transform: translateY(-2px);
 }

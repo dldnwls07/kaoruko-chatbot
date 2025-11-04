@@ -10,6 +10,13 @@ import math
 
 # 호감도 단계 정의
 AFFECTION_LEVELS = {
+    (-100, -1): {
+        "level": "멀어진사람",
+        "description": "거리를 두고 경계하는 상태",
+        "speech_pattern": "짧고 단호한 표현",
+        "unlock_features": [],
+        "title": ""
+    },
     (0, 20): {
         "level": "낯선사람",
         "description": "조심스럽고 격식있는 대화",
@@ -128,13 +135,13 @@ class AffectionManager:
         base_change = AFFECTION_TRIGGERS.get(trigger, 0)
         affection_change = math.ceil(base_change * multiplier)
         
-        # 새로운 호감도 계산 (0-100 사이로 제한)
-        new_affection_level = max(0, min(100, current_level + affection_change))
-        
-        # 레벨업 여부 확인
+        # 새로운 호감도 계산 (-100 ~ 100 사이로 제한)
+        new_affection_level = max(-100, min(100, current_level + affection_change))
+
+        # 레벨 변화 여부 확인 (증가/감소 모두 감지)
         old_stage = self.get_relationship_stage(current_level)
         new_stage = self.get_relationship_stage(new_affection_level)
-        level_up_occurred = (old_stage != new_stage) and (affection_change > 0)
+        level_up_occurred = (old_stage != new_stage)
         
         # 데이터베이스 업데이트
         affection_record = self.db.query(UserAffection).filter(
@@ -213,8 +220,12 @@ class AffectionManager:
     
     def get_affection_progress_percentage(self, affection_level: int) -> float:
         """현재 단계에서의 진행률을 퍼센트로 반환합니다"""
+        # 음수 구간(멀어진사람)은 절대값 기준으로 진행률을 표시
+        if affection_level < 0:
+            return (abs(affection_level) / 100.0) * 100.0
+
         for (min_val, max_val), _ in AFFECTION_LEVELS.items():
-            if min_val <= affection_level <= max_val:
+            if min_val <= affection_level <= max_val and min_val >= 0:
                 if max_val == min_val:
                     return 100.0
                 return ((affection_level - min_val) / (max_val - min_val)) * 100
