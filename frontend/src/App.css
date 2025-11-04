@@ -14,17 +14,22 @@
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background: linear-gradient(135deg, #ffeef8, #ffe0f0);
+  background: linear-gradient(135deg, #ff9a9e, #fecfef, #fecfef);
+  background-size: 400% 400%;
+  animation: gradientShift 8s ease infinite;
 }
 
 .name-input-card {
-  background: white;
-  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 24px;
   padding: 40px;
-  box-shadow: 0 8px 32px rgba(255, 179, 217, 0.3);
+  box-shadow: 0 20px 60px rgba(255, 107, 157, 0.2);
   text-align: center;
-  max-width: 400px;
+  max-width: 420px;
   width: 100%;
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
 }
 
 .character-image {
@@ -78,45 +83,151 @@
 }
 
 .chat-container {
-  border: 1px solid #ffb3d9;
-  border-radius: 15px;
+  border: 2px solid rgba(255, 107, 157, 0.2);
+  border-radius: 20px;
   display: flex;
   flex-direction: column;
   height: 85vh;
   width: 100%;
-  max-width: 650px;
+  max-width: 700px;
   margin: auto;
-  box-shadow: 0 4px 20px rgba(255, 179, 217, 0.3);
+  box-shadow: 0 10px 40px rgba(255, 107, 157, 0.15);
   overflow: hidden;
+  background: rgba(255, 255, 255, 0.02);
 }
 
 .chat-header {
-  background: linear-gradient(135deg, #ff9ac7, #ffb3d9);
+  background: linear-gradient(145deg, #ff6b9d, #ff8fab, #ffa8cc);
   color: white;
   padding: 20px;
+  border-radius: 20px 20px 0 0;
+  box-shadow: 0 4px 20px rgba(255, 107, 157, 0.3);
+  overflow: visible;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.chat-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="sakura" patternUnits="userSpaceOnUse" width="20" height="20"><circle cx="10" cy="10" r="1" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23sakura)"/></svg>');
+  pointer-events: none;
+}
+
+.header-main {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 15px;
-  border-radius: 15px 15px 0 0;
+  margin-bottom: 15px;
+  position: relative;
+  z-index: 1;
+  width: 100%;
 }
 
 .header-image {
-  width: 60px;
-  height: 60px;
+  width: 70px;
+  height: 70px;
   border-radius: 50%;
   object-fit: cover;
-  border: 3px solid white;
+  border: 4px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease;
 }
 
-.header-text {
+.header-image:hover {
+  transform: scale(1.05);
+}
+
+.header-info {
   flex: 1;
   text-align: left;
+  min-width: 0;
+  overflow: hidden;
 }
 
-.header-text h2 {
-  margin: 0 0 5px 0;
-  font-size: 1.4rem;
+.character-name {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 5px;
+}
+
+/* 🎭 감정 표시 시스템 */
+.emotion-display {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  padding: 4px 12px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  -webkit-backdrop-filter: blur(5px);
+  backdrop-filter: blur(5px);
+  transition: all 0.5s ease;
+  animation: emotionPulse 2s ease-in-out infinite;
+}
+
+.emotion-emoji {
+  font-size: 1.2rem;
+  transition: all 0.3s ease;
+  animation: emotionBounce 1.5s ease-in-out infinite;
+}
+
+.emotion-name {
+  font-size: 0.8rem;
   font-weight: 600;
+  color: white;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  white-space: nowrap;
+}
+
+.emotion-intensity {
+  display: flex;
+  gap: 2px;
+  align-items: center;
+}
+
+.intensity-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transition: all 0.3s ease;
+}
+
+.intensity-dot.active {
+  background: white;
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.8);
+  transform: scale(1.2);
+}
+
+.character-name h2 {
+  margin: 0;
+  font-size: 1.3rem;
+  font-weight: 700;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  white-space: nowrap;
+}
+
+.character-subtitle {
+  background: rgba(255, 255, 255, 0.25);
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.greeting-text {
+  margin: 0;
+  font-size: 0.9rem;
+  opacity: 0.95;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 .header-text p {
@@ -125,23 +236,56 @@
   font-size: 0.9rem;
 }
 
+.header-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-end;
+  flex-shrink: 0;
+}
+
+.new-user-btn,
 .end-conversation-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
   background: rgba(255, 255, 255, 0.2);
   color: white;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-radius: 8px;
-  padding: 8px 16px;
-  font-size: 0.9rem;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-radius: 6px;
+  padding: 6px 10px;
+  white-space: nowrap;
+  font-size: 0.85rem;
   cursor: pointer;
   transition: all 0.3s ease;
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
 }
 
+.new-user-btn {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.new-user-btn:hover,
 .end-conversation-btn:hover {
   background: rgba(255, 255, 255, 0.3);
   border-color: rgba(255, 255, 255, 0.5);
   transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
+}
+
+.new-user-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.btn-icon {
+  font-size: 1.1rem;
+}
+
+.btn-text {
+  font-weight: 600;
+  font-size: 0.85rem;
 }
 
 .message-list {
@@ -247,5 +391,509 @@
 @keyframes blink {
   50% {
     opacity: 0;
+  }
+}
+
+/* 새로운 호감도 카드 디자인 */
+.affection-card {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 16px;
+  padding: 16px;
+  position: sticky;
+  top: 0;
+  z-index: 101;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  margin-bottom: 16px;
+}
+
+.affection-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.relationship-badge {
+  background: rgba(255, 255, 255, 0.9);
+  color: #ff6b9d;
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  white-space: nowrap;
+}
+
+.affection-score {
+  font-size: 1.2rem;
+  font-weight: 700;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.max-score {
+  font-size: 0.9rem;
+  opacity: 0.8;
+  font-weight: 500;
+}
+
+.hearts-display {
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+  margin: 12px 0;
+}
+
+.heart {
+  font-size: 1.4rem;
+  transition: all 0.3s ease;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+.heart.filled {
+  transform: scale(1.1);
+  animation: heartBeat 2s infinite;
+}
+
+.heart.empty {
+  opacity: 0.4;
+  filter: grayscale(100%) drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
+}
+
+.progress-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.progress-track {
+  flex: 1;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #ff9a9e, #fad0c4, #ffeaa7);
+  border-radius: 20px;
+  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 0 20px rgba(255, 154, 158, 0.6);
+  position: relative;
+}
+
+.progress-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  animation: shimmer 2s infinite;
+}
+
+.progress-text {
+  font-size: 0.8rem;
+  font-weight: 600;
+  min-width: 35px;
+  text-align: right;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.affection-notification {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  animation: notificationFloat 4s ease-out forwards;
+  z-index: 10;
+}
+
+.affection-notification.positive {
+  background: linear-gradient(135deg, #4facfe, #00f2fe);
+  color: white;
+  box-shadow: 0 4px 15px rgba(79, 172, 254, 0.4);
+}
+
+.affection-notification.negative {
+  background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+  color: white;
+  box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+}
+
+.change-icon {
+  font-size: 1rem;
+}
+
+.change-text {
+  font-weight: 700;
+}
+
+/* 새로운 애니메이션들 */
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes heartBeat {
+  0%, 100% { transform: scale(1.1); }
+  50% { transform: scale(1.2); }
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@keyframes notificationFloat {
+  0% {
+    opacity: 0;
+    transform: translateY(10px) scale(0.8);
+  }
+  15% {
+    opacity: 1;
+    transform: translateY(-5px) scale(1.1);
+  }
+  30% {
+    transform: translateY(0) scale(1);
+  }
+  85% {
+    opacity: 1;
+    transform: translateY(-2px) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.9);
+  }
+}
+
+@keyframes affectionChangeFloat {
+  0% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  80% {
+    opacity: 1;
+    transform: translateY(-20px);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+}
+
+/* 🎭 감정 애니메이션 */
+@keyframes emotionPulse {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.6);
+  }
+}
+
+@keyframes emotionBounce {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-2px) scale(1.1);
+  }
+}
+
+/* 모바일 반응형 */
+@media (max-width: 768px) {
+  .header-main {
+    align-items: flex-start;
+    gap: 10px;
+  }
+  
+  .header-image {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .character-name h2 {
+    font-size: 1.1rem;
+  }
+  
+  .character-subtitle {
+    font-size: 0.7rem;
+    padding: 2px 6px;
+  }
+  
+  .header-buttons {
+    gap: 4px;
+  }
+  
+  .new-user-btn,
+  .end-conversation-btn {
+    padding: 4px 8px;
+    font-size: 0.75rem;
+  }
+  
+  .btn-text {
+    font-size: 0.75rem;
+  }
+  
+  .affection-card {
+    padding: 12px;
+  }
+  
+  .relationship-badge {
+    font-size: 0.75rem;
+    padding: 3px 10px;
+  }
+  
+  .affection-score {
+    font-size: 1rem;
+  }
+}
+
+/* 더 작은 화면 반응형 */
+@media (max-width: 480px) {
+  .header-main {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 8px;
+  }
+  
+  .header-info {
+    text-align: center;
+  }
+  
+  .header-buttons {
+    flex-direction: row;
+    justify-content: center;
+    gap: 8px;
+  }
+  
+  .character-name {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  
+  .character-name h2 {
+    font-size: 1rem;
+  }
+  
+  .greeting-text {
+    font-size: 0.8rem;
+  }
+}
+
+/* 🔊 TTS 컨트롤 스타일 */
+.tts-controls {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.tts-toggle-btn, .auto-play-btn, .tts-stop-btn, .reference-upload-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  min-width: 60px;
+  justify-content: center;
+}
+
+.tts-toggle-btn.enabled {
+  background: linear-gradient(135deg, #4CAF50, #45a049);
+  color: white;
+  box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+}
+
+.tts-toggle-btn.disabled {
+  background: linear-gradient(135deg, #9e9e9e, #757575);
+  color: white;
+  box-shadow: 0 2px 8px rgba(158, 158, 158, 0.2);
+}
+
+.auto-play-btn.enabled {
+  background: linear-gradient(135deg, #2196F3, #1976D2);
+  color: white;
+  box-shadow: 0 2px 8px rgba(33, 150, 243, 0.3);
+}
+
+.auto-play-btn.disabled {
+  background: linear-gradient(135deg, #9e9e9e, #757575);
+  color: white;
+  box-shadow: 0 2px 8px rgba(158, 158, 158, 0.2);
+}
+
+.tts-stop-btn {
+  background: linear-gradient(135deg, #f44336, #d32f2f);
+  color: white;
+  box-shadow: 0 2px 8px rgba(244, 67, 54, 0.3);
+}
+
+.reference-upload-btn {
+  background: linear-gradient(135deg, #9c27b0, #7b1fa2);
+  color: white;
+  box-shadow: 0 2px 8px rgba(156, 39, 176, 0.3);
+}
+
+.tts-toggle-btn:hover, .auto-play-btn:hover, .tts-stop-btn:hover, .reference-upload-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.btn-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+/* 메시지 컨트롤 스타일 */
+.message-content {
+  flex: 1;
+}
+
+.message-controls {
+  display: flex;
+  gap: 4px;
+  margin-top: 8px;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.tts-button, .tts-stop-button {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid #ffb3d9;
+  border-radius: 8px;
+  padding: 4px 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+.tts-button:hover, .tts-stop-button:hover {
+  background: #ffb3d9;
+  transform: scale(1.05);
+}
+
+.tts-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.message.bot {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+/* TTS 컨트롤 반응형 */
+@media (max-width: 768px) {
+  .tts-controls {
+    gap: 6px;
+  }
+  
+  .tts-toggle-btn, .auto-play-btn, .tts-stop-btn, .reference-upload-btn {
+    padding: 4px 8px;
+    font-size: 0.7rem;
+    min-width: 50px;
+  }
+  
+  .btn-label {
+    font-size: 0.6rem;
+  }
+  
+  .message-controls {
+    margin-top: 6px;
+  }
+  
+  .tts-button, .tts-stop-button {
+    padding: 3px 6px;
+    font-size: 0.8rem;
+  }
+}
+
+/* 🎛️ 볼륨 컨트롤 스타일 */
+.volume-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 12px;
+  border: 1px solid #ffb3d9;
+  min-width: 120px;
+}
+
+.volume-icon {
+  font-size: 0.8rem;
+}
+
+.volume-slider {
+  flex: 1;
+  height: 4px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #ffb3d9, #ff6b9d);
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.volume-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #ff6b9d;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s ease;
+}
+
+.volume-slider::-webkit-slider-thumb:hover {
+  background: #ff5a8a;
+  transform: scale(1.1);
+}
+
+.volume-slider::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #ff6b9d;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+@media (max-width: 768px) {
+  .volume-control {
+    min-width: 100px;
+    padding: 4px 8px;
+    gap: 6px;
+  }
+  
+  .volume-icon {
+    font-size: 0.7rem;
   }
 }

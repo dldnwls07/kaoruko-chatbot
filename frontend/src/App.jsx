@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './App.css';
 
 function App() {
@@ -7,10 +7,130 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [userName, setUserName] = useState('');
   const [showNameInput, setShowNameInput] = useState(true);
+  const [affectionLevel, setAffectionLevel] = useState(0);
+  const [affectionChange, setAffectionChange] = useState(0);
+  // 🎭 감정 시스템 2단계 state
+  const [currentEmotion, setCurrentEmotion] = useState({
+    emotion: '수줍음',
+    intensity: 5,
+    emoji: '😊',
+    color: '#ffb3d9',
+    reason: '기본 감정',
+    confidence: 0.8
+  });
+  
 
-  const handleNameSubmit = (e) => {
+
+  // 컴포넌트 마운트 시 저장된 사용자 정보 확인
+  useEffect(() => {
+    const savedUserName = localStorage.getItem('kaoruko_user_name');
+    const savedAffection = localStorage.getItem('kaoruko_affection_level');
+    const sessionStarted = localStorage.getItem('kaoruko_session_active');
+    
+    // 세션이 활성 상태이고 저장된 사용자가 있는 경우에만 복원
+    if (savedUserName && sessionStarted === 'true') {
+      setUserName(savedUserName);
+      setShowNameInput(false);
+      if (savedAffection) {
+        setAffectionLevel(parseInt(savedAffection));
+      }
+      // 환영 메시지 추가
+      const welcomeMessage = {
+        text: `어... ${savedUserName}님, 다시 만나서 반가워요... 기다리고 있었어요.`,
+        sender: 'bot',
+      };
+      setMessages([welcomeMessage]);
+    } else {
+      // 세션이 없거나 비활성 상태면 초기화
+      localStorage.removeItem('kaoruko_user_name');
+      localStorage.removeItem('kaoruko_affection_level');
+      localStorage.removeItem('kaoruko_session_active');
+    }
+  }, []);
+
+  // 사용자 정보가 변경될 때마다 로컬스토리지에 저장
+  useEffect(() => {
+    if (userName) {
+      localStorage.setItem('kaoruko_user_name', userName);
+      localStorage.setItem('kaoruko_session_active', 'true');
+    }
+  }, [userName]);
+
+  useEffect(() => {
+    if (userName) { // 사용자가 있을 때만 호감도 저장
+      localStorage.setItem('kaoruko_affection_level', affectionLevel.toString());
+    }
+  }, [affectionLevel, userName]);
+
+  // 페이지 종료/새로고침 시 세션 관리
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      // 브라우저 탭이 닫히거나 새로고침될 때 세션 유지
+      if (userName) {
+        localStorage.setItem('kaoruko_session_active', 'true');
+      }
+    };
+
+    const handleVisibilityChange = () => {
+      // 탭이 숨겨질 때 세션 정보 저장
+      if (document.visibilityState === 'hidden' && userName) {
+        localStorage.setItem('kaoruko_session_active', 'true');
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [userName]);
+
+  // 호감도에 따른 관계 단계 계산
+  const getRelationshipStage = (level) => {
+    if (level >= 81) return "특별한사람";
+    if (level >= 61) return "절친";
+    if (level >= 41) return "친구";
+    if (level >= 21) return "지인";
+    return "낯선사람";
+  };
+
+  // 호감도 하트 표시는 이제 JSX에서 직접 렌더링
+
+  // 호감도 진행률 계산
+  const getProgressPercentage = (level) => {
+    const ranges = [
+      [0, 20], [21, 40], [41, 60], [61, 80], [81, 100]
+    ];
+    
+    for (const [min, max] of ranges) {
+      if (level >= min && level <= max) {
+        return ((level - min) / (max - min)) * 100;
+      }
+    }
+    return 0;
+  };
+
+  const handleNameSubmit = async (e) => {
     e.preventDefault();
     if (userName.trim() === '') return;
+    
+    try {
+      // 새로운 사용자 이름으로 시작할 때 해당 사용자의 이전 데이터 초기화
+      await fetch('http://localhost:8001/new-user', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          message: '',
+          user_name: userName 
+        }),
+      });
+    } catch (error) {
+      console.error("Failed to clear user data:", error);
+    }
     
     setShowNameInput(false);
     // 카오루코의 첫 인사 메시지 추가
@@ -21,9 +141,47 @@ function App() {
     setMessages([welcomeMessage]);
   };
 
+  const handleNewUser = async () => {
+    // 새로운 사용자로 시작 확인
+    if (window.confirm('새로운 사용자로 시작하시겠어요? 현재 대화와 호감도가 모두 초기화됩니다.')) {
+      try {
+        // 백엔드에 사용자 데이터 초기화 요청
+        if (userName) {
+          await fetch('http://localhost:8001/new-user', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ 
+              message: '',
+              user_name: userName 
+            }),
+          });
+        }
+      } catch (error) {
+        console.error("Failed to clear user data:", error);
+      }
+      
+      // 로컬스토리지 완전 정리
+      localStorage.removeItem('kaoruko_user_name');
+      localStorage.removeItem('kaoruko_affection_level');
+      localStorage.removeItem('kaoruko_session_active');
+      
+      // 상태 즉시 초기화
+      setMessages([]);
+      setUserName('');
+      setShowNameInput(true);
+      setAffectionLevel(0);
+      setAffectionChange(0);
+    }
+  };
+
   const handleEndConversation = () => {
     // 대화 종료 확인
     if (window.confirm('정말로 대화를 종료하시겠어요? 카오루코가... 조금 아쉬워할 것 같아요...')) {
+      // 세션을 비활성 상태로 설정 (즉시)
+      localStorage.setItem('kaoruko_session_active', 'false');
+      
       // 마지막 인사 메시지 추가
       const farewell = {
         text: `${userName}님... 오늘 대화해주셔서 고마웠어요. 또... 또 만나요... 안녕히 가세요...`,
@@ -31,11 +189,19 @@ function App() {
       };
       setMessages(prev => [...prev, farewell]);
       
-      // 3초 후에 초기화
+      // 3초 후에 완전 초기화
       setTimeout(() => {
+        // 로컬스토리지 완전 정리
+        localStorage.removeItem('kaoruko_user_name');
+        localStorage.removeItem('kaoruko_affection_level');
+        localStorage.removeItem('kaoruko_session_active');
+        
+        // 상태 초기화
         setMessages([]);
         setUserName('');
         setShowNameInput(true);
+        setAffectionLevel(0);
+        setAffectionChange(0);
       }, 3000);
     }
   };
@@ -70,6 +236,28 @@ function App() {
       }
 
       const data = await response.json();
+      
+      // 호감도 정보 업데이트
+      if (data.affection_level !== undefined) {
+        setAffectionLevel(data.affection_level);
+      }
+      if (data.affection_change !== undefined && data.affection_change !== 0) {
+        setAffectionChange(data.affection_change);
+        // 호감도 변화 알림을 3초 후 제거
+        setTimeout(() => setAffectionChange(0), 3000);
+      }
+      
+      // 🎭 감정 정보 업데이트
+      if (data.emotion) {
+        setCurrentEmotion({
+          emotion: data.emotion,
+          intensity: data.emotion_intensity || 5,
+          emoji: data.emotion_emoji || '😊',
+          color: data.emotion_color || '#ffb3d9',
+          reason: data.emotion_reason || '',
+          confidence: data.emotion_confidence || 0.8
+        });
+      }
       
       const botMessage = {
         text: data.reply,
@@ -117,19 +305,87 @@ function App() {
   return (
     <div className="chat-container">
       <div className="chat-header">
-        <img src="/kaoruko.png" alt="Kaoruko Waguri" className="header-image" />
-        <div className="header-text">
-          <h2>🌸 와구리 카오루코</h2>
-          <p>안녕하세요 {userName}님... 오늘도 잘 부탁드립니다</p>
+        <div className="header-main">
+          <img src="/kaoruko.png" alt="Kaoruko Waguri" className="header-image" />
+          <div className="header-info">
+            <div className="character-name">
+              <h2>🌸 와구리 카오루코</h2>
+              <span className="character-subtitle">키쿄 사립학원 · 17세</span>
+              {/* 🎭 감정 표시 */}
+              <div className="emotion-display" style={{ backgroundColor: currentEmotion.color }}>
+                <span className="emotion-emoji" style={{ 
+                  transform: `scale(${1 + (currentEmotion.intensity / 20)})`,
+                  filter: `brightness(${0.8 + (currentEmotion.intensity / 50)})`
+                }}>
+                  {currentEmotion.emoji}
+                </span>
+                <span className="emotion-name">{currentEmotion.emotion}</span>
+                <div className="emotion-intensity">
+                  {Array.from({ length: 10 }, (_, i) => (
+                    <span key={i} className={`intensity-dot ${i < currentEmotion.intensity ? 'active' : ''}`} />
+                  ))}
+                </div>
+              </div>
+              
+
+            </div>
+            <p className="greeting-text">안녕하세요 {userName}님... 오늘도 잘 부탁드립니다</p>
+          </div>
+          <div className="header-buttons">
+            <button className="new-user-btn" onClick={handleNewUser} title="새로운 사용자로 시작">
+              <span className="btn-icon">🆕</span>
+              <span className="btn-text">새로시작</span>
+            </button>
+            <button className="end-conversation-btn" onClick={handleEndConversation} title="대화 종료">
+              <span className="btn-icon">👋</span>
+              <span className="btn-text">종료</span>
+            </button>
+          </div>
         </div>
-        <button className="end-conversation-btn" onClick={handleEndConversation} title="대화 종료">
-          👋 종료
-        </button>
+        
+        <div className="affection-card">
+          <div className="affection-header">
+            <span className="relationship-badge">{getRelationshipStage(affectionLevel)}</span>
+            <span className="affection-score">{affectionLevel}<span className="max-score">/100</span></span>
+          </div>
+          
+          <div className="hearts-display">
+            {[1, 2, 3, 4, 5].map((heart) => (
+              <span 
+                key={heart}
+                className={`heart ${Math.floor(affectionLevel / 20) + 1 >= heart ? 'filled' : 'empty'}`}
+              >
+                💖
+              </span>
+            ))}
+          </div>
+          
+          <div className="progress-container">
+            <div className="progress-track">
+              <div 
+                className="progress-fill" 
+                style={{width: `${getProgressPercentage(affectionLevel)}%`}}
+              ></div>
+            </div>
+            <span className="progress-text">{Math.round(getProgressPercentage(affectionLevel))}%</span>
+          </div>
+          
+          {affectionChange !== 0 && (
+            <div className={`affection-notification ${affectionChange > 0 ? 'positive' : 'negative'}`}>
+              <span className="change-icon">{affectionChange > 0 ? '💕' : '💔'}</span>
+              <span className="change-text">
+                {affectionChange > 0 ? '+' : ''}{affectionChange}
+              </span>
+            </div>
+          )}
+        </div>
       </div>
       <div className="message-list">
         {messages.map((msg, index) => (
           <div key={index} className={`message ${msg.sender}`}>
-            {msg.text}
+            <div className="message-content">
+              {msg.text}
+            </div>
           </div>
         ))}
         {isLoading && (

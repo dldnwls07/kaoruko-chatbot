@@ -71,3 +71,13 @@ Thumbs.db
 # 백업 파일들
 *.bak
 *.backup
+
+# AI TTS 관련 파일들
+backend/ai_tts/models/
+backend/ai_tts/output/
+backend/ai_tts/audio_data/*.mp3
+backend/ai_tts/audio_data/*.wav
+backend/ai_tts/audio_data/*.m4a
+backend/ai_tts/audio_data/*.ogg
+*.pth
+*.pt
