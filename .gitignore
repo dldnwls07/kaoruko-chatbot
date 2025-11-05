@@ -30,6 +30,11 @@ __pycache__/
 *.py[cod]
 *$py.class
 *.so
+
+# Python 가상환경
+venv/
+env/
+.venv/
 .Python
 build/
 develop-eggs/
