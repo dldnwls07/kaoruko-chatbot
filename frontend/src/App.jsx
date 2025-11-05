@@ -770,14 +770,42 @@ function App() {
         return;
       }
       
-      if (command === 'coins1000' || command === '코인1000') {
-        setCoins(prev => prev + 1000);
-        setTotalCoins(prev => prev + 1000);
-        setCoinChange(1000);
+      // 동적 코인 지급 시스템 (예: /dev coins1000, /dev coins500)
+      if (command.startsWith('coins')) {
+        const coinAmountStr = command.replace('coins', '');
+        const coinAmount = parseInt(coinAmountStr);
+        
+        if (isNaN(coinAmount) || coinAmount <= 0) {
+          const systemMessage = {
+            text: '🛠️ [개발자 모드] 올바른 코인 수량을 입력하세요. (예: /dev coins1000)',
+            sender: 'system',
+          };
+          setMessages(prevMessages => [...prevMessages, systemMessage]);
+          setInputValue('');
+          return;
+        }
+        
+        if (coinAmount > 100000) {
+          const systemMessage = {
+            text: '🛠️ [개발자 모드] 한 번에 최대 100,000코인까지만 지급 가능합니다.',
+            sender: 'system',
+          };
+          setMessages(prevMessages => [...prevMessages, systemMessage]);
+          setInputValue('');
+          return;
+        }
+        
+        setCoins(prev => prev + coinAmount);
+        setTotalCoins(prev => prev + coinAmount);
+        setCoinChange(coinAmount);
         setTimeout(() => setCoinChange(0), 3000);
         
+        // localStorage에 저장
+        localStorage.setItem('chatbot_coins', (coins + coinAmount).toString());
+        localStorage.setItem('chatbot_total_coins', (totalCoins + coinAmount).toString());
+        
         const systemMessage = {
-          text: '🛠️ [개발자 모드] 1000코인이 지급되었습니다!',
+          text: `🛠️ [개발자 모드] ${coinAmount.toLocaleString()}코인이 지급되었습니다! 💰`,
           sender: 'system',
         };
         setMessages(prevMessages => [...prevMessages, systemMessage]);
@@ -880,12 +908,14 @@ function App() {
           text: `🛠️ [개발자 명령어 목록]
 /dev maxaffection - 호감도 100 설정
 /dev affection [숫자] - 호감도를 특정 값으로 설정 (-100~100)
-/dev coins1000 - 1000코인 지급  
+/dev coins[숫자] - 원하는 코인 지급 (예: /dev coins500, /dev coins10000)
 /dev allitems - 모든 아이템 획득
 /dev reset - 개발자 모드 해제 (서버 동기화 복원)
 /dev status - 개발자 모드 상태 확인
 /dev test - 테스트 메시지
-/dev help - 도움말 표시`,
+/dev help - 도움말 표시
+
+💡 팁: coins 명령어는 1~100,000 범위에서 자유롭게 사용 가능합니다!`,
           sender: 'system',
         };
         setMessages(prevMessages => [...prevMessages, helpMessage]);

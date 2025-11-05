@@ -599,6 +599,8 @@
   border-radius: 18px;
   max-width: 75%;
   word-wrap: break-word;
+  overflow-wrap: anywhere;
+  word-break: break-word;
   font-size: 1.15rem;
   line-height: 1.6;
 }
@@ -1400,10 +1402,12 @@
   font-weight: 600;
   box-shadow: 0 4px 15px rgba(0, 255, 136, 0.3);
   animation: devGlow 2s ease-in-out infinite alternate;
-  max-width: 85%;
+  max-width: min(85%, 600px);
   margin: 10px 0;
   font-family: 'Courier New', monospace;
   white-space: pre-line;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .message.bot.event {
