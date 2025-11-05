@@ -1461,7 +1461,7 @@ function App() {
       {/* 📋 구매 확인 팝업 모달 */}
       {showPurchaseConfirm && selectedPurchaseItem && (
         <div className="purchase-popup-overlay" onClick={(e) => e.target.className === 'purchase-popup-overlay' && setShowPurchaseConfirm(false)}>
-          <div className="purchase-popup-modal">
+          <div className={`purchase-popup-modal ${selectedCharacter === 'reze' ? 'reze-theme' : ''}`}>
             <div className="purchase-popup-header">
               <h3>🛒 구매 확인</h3>
               <button className="popup-close-btn" onClick={() => setShowPurchaseConfirm(false)}>✕</button>

@@ -2024,6 +2024,24 @@
   border-color: #8A2BE2;
 }
 
+/* 기존 구매 모달도 레제 테마 적용 */
+.chat-container.reze .purchase-content {
+  border-color: #8A2BE2;
+}
+
+/* 레제 테마 구매 확인 팝업 스타일 */
+.purchase-popup-modal.reze-theme .purchase-popup-header {
+  background: linear-gradient(135deg, #8A2BE2, #9C27B0, #BA68C8);
+}
+
+.purchase-popup-modal.reze-theme .popup-confirm {
+  background: linear-gradient(135deg, #8A2BE2, #9C27B0);
+}
+
+.purchase-popup-modal.reze-theme .popup-confirm:hover:not(.disabled) {
+  box-shadow: 0 4px 12px rgba(138, 43, 226, 0.4);
+}
+
 .purchase-title {
   font-size: 1.3rem;
   font-weight: 700;
@@ -2316,6 +2334,16 @@
 
 .go-to-shop:hover {
   background: linear-gradient(135deg, #ff7bb3, #ff9ac7);
+  transform: translateY(-1px);
+}
+
+/* 레제 테마 - 상점으로 가기 버튼 보라색 */
+.chat-container.reze .go-to-shop {
+  background: linear-gradient(135deg, #8A2BE2, #9C27B0);
+}
+
+.chat-container.reze .go-to-shop:hover {
+  background: linear-gradient(135deg, #6A1B9A, #8A2BE2);
   transform: translateY(-1px);
 }
 
