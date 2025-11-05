@@ -6,7 +6,9 @@ function App() {
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [userName, setUserName] = useState('');
-  const [showNameInput, setShowNameInput] = useState(true);
+  const [selectedCharacter, setSelectedCharacter] = useState('');
+  const [showCharacterSelect, setShowCharacterSelect] = useState(true);
+  const [showNameInput, setShowNameInput] = useState(false);
   const [affectionLevel, setAffectionLevel] = useState(0);
   const [affectionChange, setAffectionChange] = useState(0);
   const [showAffectionBar, setShowAffectionBar] = useState(true);
@@ -19,33 +21,65 @@ function App() {
     reason: '기본 감정',
     confidence: 0.8
   });
+
+  // 캐릭터별 감정 색상 가져오기
+  const getEmotionColor = () => {
+    if (selectedCharacter === 'reze') {
+      // 레제용 보라색 베이스 색상들
+      const rezeColors = {
+        '수줍음': '#9932cc',
+        '기쁨': '#8a2be2', 
+        '흥미': '#7b68ee',
+        '사랑': '#ba55d3',
+        '슬픔': '#4b0082',
+        '화남': '#6a0dad'
+      };
+      return rezeColors[currentEmotion.emotion] || '#8a2be2';
+    } else {
+      // 와구리용 핑크 베이스 색상들 (기본)
+      const kaokurukoColors = {
+        '수줍음': '#ffb3d9',
+        '기쁨': '#ff69b4',
+        '흥미': '#ffc0cb',
+        '사랑': '#ff1493',
+        '슬픔': '#db7093',
+        '화남': '#dc143c'
+      };
+      return kaokurukoColors[currentEmotion.emotion] || '#ffb3d9';
+    }
+  };
   
 
 
   // 컴포넌트 마운트 시 저장된 사용자 정보 확인
   useEffect(() => {
-    const savedUserName = localStorage.getItem('kaoruko_user_name');
-    const savedAffection = localStorage.getItem('kaoruko_affection_level');
-    const sessionStarted = localStorage.getItem('kaoruko_session_active');
+    const savedUserName = localStorage.getItem('chatbot_user_name');
+    const savedCharacter = localStorage.getItem('chatbot_selected_character');
+    const savedAffection = localStorage.getItem('chatbot_affection_level');
+    const sessionStarted = localStorage.getItem('chatbot_session_active');
     
-    // 세션이 활성 상태이고 저장된 사용자가 있는 경우에만 복원
-    if (savedUserName && sessionStarted === 'true') {
+    // 세션이 활성 상태이고 저장된 정보가 있는 경우에만 복원
+    if (savedUserName && savedCharacter && sessionStarted === 'true') {
       setUserName(savedUserName);
+      setSelectedCharacter(savedCharacter);
+      setShowCharacterSelect(false);
       setShowNameInput(false);
       if (savedAffection) {
         setAffectionLevel(parseInt(savedAffection));
       }
-      // 환영 메시지 추가
-      const welcomeMessage = {
-        text: `어... ${savedUserName}님, 다시 만나서 반가워요... 기다리고 있었어요.`,
-        sender: 'bot',
-      };
+      
+      // 캐릭터별 환영 메시지
+      const welcomeMessage = savedCharacter === 'kaoruko' 
+        ? { text: `어... ${savedUserName}님, 다시 만나서 반가워요... 기다리고 있었어요.`, sender: 'bot' }
+        : { text: `${savedUserName}님! 다시 만나네요. 어디 갔다 온 거예요?`, sender: 'bot' };
+      
       setMessages([welcomeMessage]);
     } else {
       // 세션이 없거나 비활성 상태면 초기화
-      localStorage.removeItem('kaoruko_user_name');
-      localStorage.removeItem('kaoruko_affection_level');
-      localStorage.removeItem('kaoruko_session_active');
+      localStorage.removeItem('chatbot_user_name');
+      localStorage.removeItem('chatbot_selected_character');
+      localStorage.removeItem('chatbot_affection_level');
+      localStorage.removeItem('chatbot_session_active');
     }
   }, []);
 
@@ -87,6 +121,13 @@ function App() {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, [userName]);
+
+  // 캐릭터 선택 핸들러
+  const handleCharacterSelect = (character) => {
+    setSelectedCharacter(character);
+    setShowCharacterSelect(false);
+    setShowNameInput(true);
+  };
 
   // 호감도에 따른 관계 단계 계산
   const getRelationshipStage = (level) => {
@@ -189,12 +230,18 @@ function App() {
       console.error("Failed to clear user data:", error);
     }
     
+    // 로컬스토리지에 사용자 정보 저장
+    localStorage.setItem('chatbot_user_name', userName);
+    localStorage.setItem('chatbot_selected_character', selectedCharacter);
+    localStorage.setItem('chatbot_session_active', 'true');
+    
     setShowNameInput(false);
-    // 카오루코의 첫 인사 메시지 추가
-    const welcomeMessage = {
-      text: `아... 안녕하세요, ${userName}님. 와구리 카오루코라고 합니다... 만나뵙게 되어 반갑습니다.`,
-      sender: 'bot',
-    };
+    
+    // 캐릭터별 첫 인사 메시지
+    const welcomeMessage = selectedCharacter === 'kaoruko' 
+      ? { text: `아... 안녕하세요, ${userName}님. 와구리 카오루코라고 합니다... 만나뵙게 되어 반갑습니다.`, sender: 'bot' }
+      : { text: `안녕하세요! ${userName}님이네요? 저는 레제예요! ${userName}님 같이 재미있는 사람은 처음이에요!`, sender: 'bot' };
+    
     setMessages([welcomeMessage]);
   };
 
@@ -220,43 +267,53 @@ function App() {
       }
       
       // 로컬스토리지 완전 정리
-      localStorage.removeItem('kaoruko_user_name');
-      localStorage.removeItem('kaoruko_affection_level');
-      localStorage.removeItem('kaoruko_session_active');
+      localStorage.removeItem('chatbot_user_name');
+      localStorage.removeItem('chatbot_selected_character');
+      localStorage.removeItem('chatbot_affection_level');
+      localStorage.removeItem('chatbot_session_active');
       
       // 상태 즉시 초기화
       setMessages([]);
       setUserName('');
-      setShowNameInput(true);
+      setSelectedCharacter('');
+      setShowCharacterSelect(true);
+      setShowNameInput(false);
       setAffectionLevel(0);
       setAffectionChange(0);
     }
   };
 
   const handleEndConversation = () => {
-    // 대화 종료 확인
-    if (window.confirm('정말로 대화를 종료하시겠어요? 카오루코가... 조금 아쉬워할 것 같아요...')) {
-      // 세션을 비활성 상태로 설정 (즉시)
-      localStorage.setItem('kaoruko_session_active', 'false');
+    // 캐릭터별 종료 확인 메시지
+    const confirmMessage = selectedCharacter === 'kaoruko' 
+      ? '정말로 대화를 종료하시겠어요? 카오루코가... 조금 아쉬워할 것 같아요...'
+      : '정말로 대화를 종료하시겠어요? 레제랑 더 놀고 싶지 않아요?';
       
-      // 마지막 인사 메시지 추가
-      const farewell = {
-        text: `${userName}님... 오늘 대화해주셔서 고마웠어요. 또... 또 만나요... 안녕히 가세요...`,
-        sender: 'bot',
-      };
+    if (window.confirm(confirmMessage)) {
+      // 세션을 비활성 상태로 설정 (즉시)
+      localStorage.setItem('chatbot_session_active', 'false');
+      
+      // 캐릭터별 마지막 인사 메시지
+      const farewell = selectedCharacter === 'kaoruko'
+        ? { text: `${userName}님... 오늘 대화해주셔서 고마웠어요. 또... 또 만나요... 안녕히 가세요...`, sender: 'bot' }
+        : { text: `${userName}님! 오늘 정말 재밌었어요! 또 만나요~ 안녕!`, sender: 'bot' };
+        
       setMessages(prev => [...prev, farewell]);
       
       // 3초 후에 완전 초기화
       setTimeout(() => {
         // 로컬스토리지 완전 정리
-        localStorage.removeItem('kaoruko_user_name');
-        localStorage.removeItem('kaoruko_affection_level');
-        localStorage.removeItem('kaoruko_session_active');
+        localStorage.removeItem('chatbot_user_name');
+        localStorage.removeItem('chatbot_selected_character');
+        localStorage.removeItem('chatbot_affection_level');
+        localStorage.removeItem('chatbot_session_active');
         
         // 상태 초기화
         setMessages([]);
         setUserName('');
-        setShowNameInput(true);
+        setSelectedCharacter('');
+        setShowCharacterSelect(true);
+        setShowNameInput(false);
         setAffectionLevel(0);
         setAffectionChange(0);
       }, 3000);
@@ -377,21 +434,83 @@ function App() {
     return parts.length > 0 ? parts : [{ type: 'normal', text }];
   };
 
-  if (showNameInput) {
+  // 캐릭터 선택 화면
+  if (showCharacterSelect) {
     return (
-      <div className="name-input-container">
+      <div className="character-select-container">
+        <div className="character-select-card">
+          <h1>💕 AI 챗봇 선택</h1>
+          <p>대화하고 싶은 캐릭터를 선택해주세요</p>
+          
+          <div className="character-options">
+            <div 
+              className="character-option kaoruko"
+              onClick={() => handleCharacterSelect('kaoruko')}
+            >
+              <img src="/kaoruko.png" alt="Kaoruko Waguri" className="character-preview" />
+              <h3>🌸 와구리 카오루코</h3>
+              <p className="character-desc">키쿄 사립학원 · 17세</p>
+              <p className="character-personality">수줍고 정중하며 상냥한 단데레 타입</p>
+            </div>
+            
+            <div 
+              className="character-option reze"
+              onClick={() => handleCharacterSelect('reze')}
+            >
+              <img src="/Reze.png" alt="Reze" className="character-preview" />
+              <h3>🩸 레제</h3>
+              <p className="character-desc">카페 종업원 · 16세</p>
+              <p className="character-personality">호기심 많고 직설적인 매닉 픽시 드림 걸</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (showNameInput) {
+    const characterInfo = selectedCharacter === 'kaoruko' 
+      ? {
+          image: '/Waguri_main.png',
+          alt: 'Kaoruko Waguri',
+          name: '🌸 와구리 카오루코',
+          desc: '키쿄 사립 학원 고등학생',
+          label: '당신의 이름을 알려주세요...',
+          placeholder: '이름을 입력해주세요'
+        }
+      : {
+          image: '/Reze_main.png',
+          alt: 'Reze',
+          name: '🩸 레제',
+          desc: '카페 종업원',
+          label: '이름이 뭐예요?',
+          placeholder: '이름을 알려주세요!'
+        };
+
+    return (
+      <div className={`name-input-container ${selectedCharacter}`}>
         <div className="name-input-card">
-          <img src="/kaoruko.png" alt="Kaoruko Waguri" className="character-image" />
-          <h2>🌸 와구리 카오루코</h2>
-          <p>키쿄 사립 학원 고등학생</p>
+          <button 
+            className="back-button"
+            onClick={() => {
+              setShowNameInput(false);
+              setShowCharacterSelect(true);
+              setSelectedCharacter('');
+            }}
+          >
+            ← 캐릭터 다시 선택
+          </button>
+          <img src={characterInfo.image} alt={characterInfo.alt} className="character-image" />
+          <h2>{characterInfo.name}</h2>
+          <p>{characterInfo.desc}</p>
           <form onSubmit={handleNameSubmit} className="name-form">
-            <label htmlFor="userName">당신의 이름을 알려주세요...</label>
+            <label htmlFor="userName">{characterInfo.label}</label>
             <input
               type="text"
               id="userName"
               value={userName}
               onChange={(e) => setUserName(e.target.value)}
-              placeholder="이름을 입력해주세요"
+              placeholder={characterInfo.placeholder}
               autoComplete="off"
             />
             <button type="submit">시작하기</button>
@@ -401,17 +520,38 @@ function App() {
     );
   }
 
+  // 캐릭터 정보 가져오기
+  const getCharacterInfo = () => {
+    return selectedCharacter === 'kaoruko' 
+      ? {
+          image: '/kaoruko_profile.png',
+          alt: 'Kaoruko Waguri',
+          name: '🌸 와구리 카오루코',
+          subtitle: '키쿄 사립학원 · 17세',
+          greeting: `안녕하세요 ${userName}님... 오늘도 잘 부탁드립니다`
+        }
+      : {
+          image: '/Reze_profile.png',
+          alt: 'Reze',
+          name: '🩸 레제',
+          subtitle: '카페 종업원 · 16세',
+          greeting: `${userName}님! 오늘은 뭐 할까요?`
+        };
+  };
+
+  const characterInfo = getCharacterInfo();
+
   return (
-    <div className="chat-container">
+    <div className={`chat-container ${selectedCharacter}`}>
       <div className="chat-header">
         <div className="header-main">
-          <img src="/kaoruko.png" alt="Kaoruko Waguri" className="header-image" />
+          <img src={characterInfo.image} alt={characterInfo.alt} className="header-image" />
           <div className="header-info">
             <div className="character-name">
-              <h2>🌸 와구리 카오루코</h2>
-              <span className="character-subtitle">키쿄 사립학원 · 17세</span>
+              <h2>{characterInfo.name}</h2>
+              <span className="character-subtitle">{characterInfo.subtitle}</span>
               {/* 🎭 감정 표시 */}
-              <div className="emotion-display" style={{ backgroundColor: currentEmotion.color }}>
+              <div className="emotion-display" style={{ backgroundColor: getEmotionColor() }}>
                 <span className="emotion-emoji" style={{ 
                   transform: `scale(${1 + (currentEmotion.intensity / 20)})`,
                   filter: `brightness(${0.8 + (currentEmotion.intensity / 50)})`
@@ -428,7 +568,7 @@ function App() {
               
 
             </div>
-            <p className="greeting-text">안녕하세요 {userName}님... 오늘도 잘 부탁드립니다</p>
+            <p className="greeting-text">{characterInfo.greeting}</p>
           </div>
           <div className="header-buttons">
             <button className="new-user-btn" onClick={handleNewUser} title="새로운 사용자로 시작">
@@ -451,7 +591,10 @@ function App() {
               onClick={() => setShowAffectionBar(!showAffectionBar)}
               title={showAffectionBar ? "호감도 바 숨기기" : "호감도 바 보이기"}
             >
-              {showAffectionBar ? '🌸' : '�'}
+              {selectedCharacter === 'reze' 
+                ? (showAffectionBar ? '💜' : '🖤') 
+                : (showAffectionBar ? '🩷' : '❤️')
+              }
             </button>
           </div>
           
@@ -461,12 +604,13 @@ function App() {
             {[1, 2, 3, 4, 5].map((heart) => {
               if (affectionLevel >= 0) {
                 const filledCount = Math.floor(affectionLevel / 20) + 1;
+                const heartIcon = selectedCharacter === 'reze' ? '💜' : '💖';
                 return (
                   <span
                     key={heart}
                     className={`heart ${filledCount >= heart ? 'filled' : 'empty'}`}
                   >
-                    💖
+                    {heartIcon}
                   </span>
                 );
               } else {
@@ -477,7 +621,7 @@ function App() {
                     key={heart}
                     className={`heart negative ${brokenCount >= heart ? 'broken' : 'empty'}`}
                   >
-                    �
+                    💔
                   </span>
                 );
               }
@@ -502,7 +646,12 @@ function App() {
               
               {affectionChange !== 0 && (
                 <div className={`affection-notification ${affectionChange > 0 ? 'positive' : 'negative'}`}>
-                  <span className="change-icon">{affectionChange > 0 ? '💕' : '💔'}</span>
+                  <span className="change-icon">
+                    {affectionChange > 0 
+                      ? (selectedCharacter === 'reze' ? '�' : '�💕')
+                      : '💔'
+                    }
+                  </span>
                   <span className="change-text">
                     {affectionChange > 0 ? '+' : ''}{affectionChange}
                   </span>
@@ -541,7 +690,7 @@ function App() {
           type="text"
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
-          placeholder="카오루코에게 메시지를 보내보세요..."
+          placeholder={selectedCharacter === 'reze' ? '레제에게 메시지를 보내보세요...' : '와구리 카오루코 에게 메시지를 보내보세요...'}
           disabled={isLoading}
         />
         <button type="submit" disabled={isLoading}>

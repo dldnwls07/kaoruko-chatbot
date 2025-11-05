@@ -11,6 +11,20 @@ api_key.txt
 *.sqlite3
 chat_history.db
 
+# VSCode 히스토리 및 임시 파일
+.history/
+*.tmp
+*.temp
+*.bak
+
+# 개발 중 생성되는 임시 파일들
+test_*.py
+*_backup.*
+*_temp.*
+
+# 실행 파일은 포함 (편의성을 위해)
+# *.bat 는 제외 - 실행 파일들을 Git에 포함
+
 # Python 캐시 파일들
 __pycache__/
 *.py[cod]
