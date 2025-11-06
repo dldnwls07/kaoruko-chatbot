@@ -1718,6 +1718,7 @@
   cursor: pointer;
   position: relative;
   overflow: hidden;
+  color: #2c3e50;
 }
 
 .shop-item::before {
@@ -1744,6 +1745,7 @@
 .chat-container.reze .shop-item {
   background: linear-gradient(135deg, #f3e8ff, #e9d5ff);
   border-color: #8A2BE2;
+  color: #2c3e50;
 }
 
 .chat-container.reze .shop-item:hover {
@@ -1939,20 +1941,11 @@
   font-weight: 700;
   font-size: 1.2rem;
   color: #2c3e50;
-  background: linear-gradient(45deg, #34495e, #2c3e50);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .price-value {
-  background: linear-gradient(45deg, #FF8C00, #FFA500);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #FF8C00;
   font-weight: 800;
-  text-shadow: none;
 }
 
 .price-value .coin-icon,
@@ -1962,12 +1955,8 @@
 }
 
 .balance-value {
-  background: linear-gradient(45deg, #4169E1, #6495ED);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #4169E1;
   font-weight: 800;
-  text-shadow: none;
 }
 
 .price-divider {
